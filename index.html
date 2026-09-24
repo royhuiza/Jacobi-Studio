@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jacobi Studio | Métodos Numéricos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <main class="app-shell">
+    <header class="hero glass">
+      <div class="hero__content">
+        <span class="eyebrow">MÉTODOS NUMÉRICOS · SESIÓN 7</span>
+        <h1>Jacobi Studio</h1>
+        <p>
+          Aplicación web editable y profesional para resolver <strong>sistemas de ecuaciones lineales</strong>
+          con el <strong>método de Jacobi</strong>, verificando convergencia por <strong>diagonal dominante</strong> y
+          mostrando el historial completo de iteraciones.
+        </p>
+        <div class="hero__chips">
+          <span class="chip">Editable en VS Code</span>
+          <span class="chip">Vista web moderna</span>
+          <span class="chip">Ejemplos guiados</span>
+          <span class="chip">Resultados exportables</span>
+        </div>
+      </div>
+      <div class="hero__meta glass-inner">
+        <div class="meta-card">
+          <span class="meta-label">Vector inicial</span>
+          <strong>x⁽⁰⁾ = 0</strong>
+        </div>
+        <div class="meta-card">
+          <span class="meta-label">Tolerancia por defecto</span>
+          <strong>10<sup>-4</sup></strong>
+        </div>
+        <div class="meta-card">
+          <span class="meta-label">Criterio</span>
+          <strong>Error relativo</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar glass">
+      <div class="toolbar__left">
+        <label>
+          <span>Dimensión del sistema</span>
+          <select id="sizeSelect">
+            <option value="2">2 × 2</option>
+            <option value="3">3 × 3</option>
+            <option value="4" selected>4 × 4</option>
+            <option value="5">5 × 5</option>
+            <option value="6">6 × 6</option>
+          </select>
+        </label>
+        <label>
+          <span>Tolerancia</span>
+          <input id="tolInput" type="number" value="0.0001" step="0.0001" />
+        </label>
+        <label>
+          <span>Máx. iteraciones</span>
+          <input id="maxIterInput" type="number" value="100" min="1" step="1" />
+        </label>
+      </div>
+      <div class="toolbar__right">
+        <button class="btn btn-secondary" id="btnSampleGuide">Cargar guía</button>
+        <button class="btn btn-secondary" id="btnSampleClass">Ejemplo clase</button>
+        <button class="btn btn-secondary" id="btnSampleEDD">Ejemplo EDD</button>
+        <button class="btn btn-primary" id="btnSolve">Resolver Jacobi</button>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <div class="panel panel--editor glass">
+        <div class="panel__header">
+          <div>
+            <h2>Editor del sistema</h2>
+            <p>Modifica la matriz A, el vector b y el vector inicial x⁽⁰⁾.</p>
+          </div>
+          <button class="btn btn-ghost" id="btnResetZeros">x⁽⁰⁾ = 0</button>
+        </div>
+
+        <div class="editor-grid">
+          <div class="matrix-wrap">
+            <h3>Matriz A</h3>
+            <div id="matrixGrid" class="matrix-grid"></div>
+          </div>
+          <div class="vector-wrap">
+            <h3>Vector b</h3>
+            <div id="vectorGrid" class="vector-grid"></div>
+          </div>
+          <div class="vector-wrap">
+            <h3>Vector inicial x⁽⁰⁾</h3>
+            <div id="x0Grid" class="vector-grid"></div>
+          </div>
+        </div>
+
+        <div class="formula-card glass-inner">
+          <h3>Fórmulas iterativas generadas</h3>
+          <div id="formulaList" class="formula-list"></div>
+        </div>
+      </div>
+
+      <div class="panel panel--results glass">
+        <div class="panel__header">
+          <div>
+            <h2>Diagnóstico y resultados</h2>
+            <p>Validación de convergencia y resumen del proceso iterativo.</p>
+          </div>
+          <button class="btn btn-ghost" id="btnExportCsv">Exportar CSV</button>
+        </div>
+
+        <div class="status-cards">
+          <article class="status-card">
+            <span class="status-label">Convergencia teórica</span>
+            <strong id="dominanceStatus">Pendiente</strong>
+            <small id="dominanceDetail">Aún no se ha evaluado la matriz.</small>
+          </article>
+          <article class="status-card">
+            <span class="status-label">Solución aproximada</span>
+            <strong id="solutionStatus">Pendiente</strong>
+            <small id="solutionDetail">Ejecuta el método para obtener resultados.</small>
+          </article>
+          <article class="status-card">
+            <span class="status-label">Iteraciones</span>
+            <strong id="iterStatus">0</strong>
+            <small id="errorDetail">Error relativo: —</small>
+          </article>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="glass-inner analysis-box">
+            <h3>Chequeo por filas</h3>
+            <div id="dominanceChecks" class="checks-list"></div>
+          </div>
+          <div class="glass-inner analysis-box">
+            <h3>Solución final</h3>
+            <div id="finalVector" class="final-vector empty">Sin calcular</div>
+          </div>
+        </div>
+
+        <div class="table-card glass-inner">
+          <div class="table-card__header">
+            <h3>Historial de iteraciones</h3>
+            <span id="tableCaption">Se mostrará el valor de x⁽ᵏ⁾ y el error relativo.</span>
+          </div>
+          <div class="table-wrap">
+            <table id="iterationsTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="insights">
+      <article class="glass insight-card">
+        <h3>¿Qué verifica esta app?</h3>
+        <p>
+          Evalúa si la matriz es <strong>estrictamente diagonal dominante por filas</strong>, es decir,
+          si en cada fila se cumple: <strong>|aᵢᵢ| &gt; Σ|aᵢⱼ|</strong> con <strong>j ≠ i</strong>.
+        </p>
+      </article>
+      <article class="glass insight-card">
+        <h3>¿Qué garantiza?</h3>
+        <p>
+          La diagonal dominante es una condición suficiente para la <strong>convergencia</strong> del método de Jacobi,
+          por lo que el proceso iterativo se aproxima a una solución única.
+        </p>
+      </article>
+      <article class="glass insight-card">
+        <h3>Inspiración</h3>
+        <p>
+          El diseño toma como referencia tus apuntes de clase y la guía del curso, pero los presenta en una
+          <strong>interfaz moderna, profesional y editable</strong> para exposición o entrega.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
